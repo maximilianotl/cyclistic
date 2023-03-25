@@ -1,365 +1,288 @@
-## Create a database
+--Create a database
 
-```
 create database portfolio_projects;
-```
 
---seleccionar la base de datos
+--Select a database
 
 use portfolio_projects;
 
---permitir el acceso para crear nuevas tablas
-
-grant all on portfolio_projects.* to 'root'@'localhost';
-
---para crear una nueva tabla
+--Create a new table
 
 create table cyclistic (
-ride_id varchar (20),
-rideable_type varchar (15),
-started_at datetime,
-ended_at datetime,
-start_station_name varchar (100),
-start_station_id varchar (50),
-end_station_name varchar (100),
-end_station_id varchar (50),
-start_lat varchar (20),
-start_lng varchar (20),
-end_lat varchar (20),
-end_lng varchar (20),
-member_casual varchar(10) );
+       ride_id varchar (20)
+     , rideable_type varchar (15)
+     , started_at datetime
+     , ended_at datetime
+     , start_station_name varchar (100)
+     , start_station_id varchar (50)
+     , end_station_name varchar (100)
+     , end_station_id varchar (50)
+     , start_lat varchar (20)
+     , start_lng varchar (20)
+     , end_lat varchar (20)
+     , end_lng varchar (20)
+     , member_casual varchar(10) 
+       );
 
---para visualizar los atributos de la tabla
+--Import CSV files
 
-describe cyclistic;
-
--habilitar la importación de datos locales
-https://www.youtube.com/watch?v=ioynsyvudew
-show global variables like 'local_infile';
-set global local_infile='on';
-show variables like 'secure_file_priv';
-set global sql_mode= 'no_engine_substitution';
-
--- modificar la tabla
-alter table cyclistic
-modify member_casual varchar (20);
-modify start_lat varchar (20),
-modify start_lng varchar (20),
-modify end_lat varchar (20),
-modify end_lng varchar (20),
-modify start_station_id varchar (50),
-modify end_station_id varchar (50);
-
---para importar un archivo csv
-
-load data local infile 'c:\\users\\maximiliano\\documents\\maximiliano\\data analyst\\curso 8\\divvy\\divvy_trip_data_2022_sql//202201-divvy-tripdata.csv'
-into table cyclistic
-fields terminated by ','
+    load data local infile 'c:\\users\\documents\\data analyst//202201-divvy-tripdata.csv'
+    into table cyclistic
+  fields terminated by ','
 enclosed by '"'
-lines terminated by '\n'
-ignore 1 rows;
+   lines terminated by '\n'
+  ignore 1 rows;
 
-load data local infile 'c:\\users\\maximiliano\\documents\\maximiliano\\data analyst\\curso 8\\divvy\\divvy_trip_data_2022_sql//202202-divvy-tripdata.csv'
-into table cyclistic
-fields terminated by ','
+    load data local infile 'c:\\users\\data analyst//202202-divvy-tripdata.csv'
+    into table cyclistic
+  fields terminated by ','
 enclosed by '"'
-lines terminated by '\n'
-ignore 1 rows;
+   lines terminated by '\n'
+  ignore 1 rows;
 
-load data local infile 'c:\\users\\maximiliano\\documents\\maximiliano\\data analyst\\curso 8\\divvy\\divvy_trip_data_2022_sql//202203-divvy-tripdata.csv'
-into table cyclistic
-fields terminated by ','
+    load data local infile 'c:\\users\\data analyst//202203-divvy-tripdata.csv'
+    into table cyclistic
+  fields terminated by ','
 enclosed by '"'
-lines terminated by '\n'
-ignore 1 rows;
+   lines terminated by '\n'
+  ignore 1 rows;
 
-load data local infile 'c:\\users\\maximiliano\\documents\\maximiliano\\data analyst\\curso 8\\divvy\\divvy_trip_data_2022_sql//202204-divvy-tripdata.csv'
-into table cyclistic
-fields terminated by ','
+    load data local infile 'c:\\users\\data analyst//202204-divvy-tripdata.csv'
+    into table cyclistic
+  fields terminated by ','
 enclosed by '"'
-lines terminated by '\n'
-ignore 1 rows;
+   lines terminated by '\n'
+  ignore 1 rows;
 
-load data local infile 'c:\\users\\maximiliano\\documents\\maximiliano\\data analyst\\curso 8\\divvy\\divvy_trip_data_2022_sql//202205-divvy-tripdata.csv'
-into table cyclistic
-fields terminated by ','
+    load data local infile 'c:\\users\\data analyst//202205-divvy-tripdata.csv'
+    into table cyclistic
+  fields terminated by ','
 enclosed by '"'
-lines terminated by '\n'
-ignore 1 rows;
+   lines terminated by '\n'
+  ignore 1 rows;
 
-load data local infile 'c:\\users\\maximiliano\\documents\\maximiliano\\data analyst\\curso 8\\divvy\\divvy_trip_data_2022_sql//202206-divvy-tripdata.csv'
-into table cyclistic
-fields terminated by ','
+    load data local infile 'c:\\users\\data analyst//202206-divvy-tripdata.csv'
+    into table cyclistic
+  fields terminated by ','
 enclosed by '"'
-lines terminated by '\n'
-ignore 1 rows;
+   lines terminated by '\n'
+  ignore 1 rows;
 
-load data local infile 'c:\\users\\maximiliano\\documents\\maximiliano\\data analyst\\curso 8\\divvy\\divvy_trip_data_2022_sql//202207-divvy-tripdata.csv'
-into table cyclistic
-fields terminated by ','
+    load data local infile 'c:\\users\\data analyst//202207-divvy-tripdata.csv'
+    into table cyclistic
+  fields terminated by ','
 enclosed by '"'
-lines terminated by '\n'
-ignore 1 rows;
+   lines terminated by '\n'
+  ignore 1 rows;
 
-load data local infile 'c:\\users\\maximiliano\\documents\\maximiliano\\data analyst\\curso 8\\divvy\\divvy_trip_data_2022_sql//202208-divvy-tripdata.csv'
-into table cyclistic
-fields terminated by ','
+    load data local infile 'c:\\users\\data analyst//202208-divvy-tripdata.csv'
+    into table cyclistic
+  fields terminated by ','
 enclosed by '"'
-lines terminated by '\n'
-ignore 1 rows;
+   lines terminated by '\n'
+  ignore 1 rows;
 
-\* convertir el formato del archivo .csv para dejarlo sin comillas y concatenando fechas*/
---concatenar fechas en excel
-
-=+concatenar(a2,",",b2,",",(+texto(c2,"aaaa-mm-dd hh:mm:ss")),",",(+texto(d2,"aaaa-mm-dd hh:mm:ss")),",",e2,",",f2,",",g2,",",h2,",",i2,",",j2,",",k2,",",l2,",",m2)
-
---guardar los datos sin comillas
-https://es.extendoffice.com/documents/excel/3620-excel-save-worksheet-data-as-csv-file-with-without-double-quotes.html
-alt+f11
-insertar > módulo
-
-sub export()
-'updateby extendoffice
-    dim xrg as range
-    dim xrow as range
-    dim xcell as range
-    dim xstr as string
-    dim xtxt as string
-    dim xname as variant
-    on error resume next
-    if activewindow.rangeselection.count > 1 then
-      xtxt = activewindow.rangeselection.addresslocal
-    else
-      xtxt = activesheet.usedrange.addresslocal
-    end if
-    set xrg = application.inputbox("please select data range:", "kutools for excel", xtxt, , , , , 8)
-    if xrg is nothing then exit sub
-    xname = application.getsaveasfilename("", "csv file (*.csv), *.csv")
-    open xname for output as #1
-    for each xrow in xrg.rows
-        xstr = ""
-        for each xcell in xrow.cells
-            xstr = xstr & xcell.value & chr(9)
-        next
-        while right(xstr, 1) = chr(9)
-            xstr = left(xstr, len(xstr) - 1)
-        wend
-        print #1, xstr
-    next
-    close #1
-    if err = 0 then msgbox "the file has saved to: " & xname, vbinformation, "kutools for excel"
-end sub
-
-
-load data local infile 'c:\\users\\maximiliano\\documents\\maximiliano\\data analyst\\curso 8\\divvy\\divvy_trip_data_2022_sql//202209-divvy-tripdata.csv'
-into table cyclistic
-fields terminated by ','
+    load data local infile 'c:\\users\\data analyst//202209-divvy-tripdata.csv'
+    into table cyclistic
+  fields terminated by ','
 enclosed by '"'
-lines terminated by '\n'
-ignore 1 rows;
+   lines terminated by '\n'
+  ignore 1 rows;
 
-load data local infile 'c:\\users\\maximiliano\\documents\\maximiliano\\data analyst\\curso 8\\divvy\\divvy_trip_data_2022_sql//202210-divvy-tripdata.csv'
-into table cyclistic
-fields terminated by ','
+    load data local infile 'c:\\users\\data analyst//202210-divvy-tripdata.csv'
+    into table cyclistic
+  fields terminated by ','
 enclosed by '"'
-lines terminated by '\n'
-ignore 1 rows;
+   lines terminated by '\n'
+  ignore 1 rows;
 
-load data local infile 'c:\\users\\maximiliano\\documents\\maximiliano\\data analyst\\curso 8\\divvy\\divvy_trip_data_2022_sql//202211-divvy-tripdata.csv'
-into table cyclistic
-fields terminated by ','
+    load data local infile 'c:\\users\\data analyst//202211-divvy-tripdata.csv'
+    into table cyclistic
+  fields terminated by ','
 enclosed by '"'
-lines terminated by '\n'
-ignore 1 rows;
+   lines terminated by '\n'
+  ignore 1 rows;
 
-load data local infile 'c:\\users\\maximiliano\\documents\\maximiliano\\data analyst\\curso 8\\divvy\\divvy_trip_data_2022_sql//202212-divvy-tripdata.csv'
-into table cyclistic
-fields terminated by ','
+    load data local infile 'c:\\users\\data analyst//202212-divvy-tripdata.csv'
+    into table cyclistic
+  fields terminated by ','
 enclosed by '"'
-lines terminated by '\n'
-ignore 1 rows;
+   lines terminated by '\n'
+  ignore 1 rows;
 
-##limpiar datos
-#parsing: locates and identifies individual data elements in the source files and then isolates these data elements in the target files.
+--Clean data
+--Delete trips in 2023
 
---la tabla base es rideable_type, started_at, ended_at, start_station_name, end_station_name, member_casual, ride_length, day, month, year
---hay un total de 5,667,717 eventos.
---habían 61 eventos que terminaron después del año 2022. debido a que 61 eventos no son para nada una cantidad significativa en los datos, se elimiraron.
---nombres de estaciones son nulas, deben ser cambiados por 'unkown' para facilitar los cálculos.
---las columnas útiles son rideable_type, started_at, ended_at, start_station_name, end_station_name, member_casual
-#correcting: corrects parsed individual data components using sophisticated data algorithms and secondary data sources.
---eliminar eventos en el 2023
 delete from cyclistic
-where ended_at like '2023%';
+ where ended_at 
+  like '2023%';
 
---eliminar eventos que tienen la fecha de final menor que la fecha de inicio del viaje
-delete
-from cyclistic
-where timediff(ended_at, started_at)<0;
+--Delete trips with ending date minor than starting date
 
-representan 100 viajes, lo cual, no es significativo para la cantidad de viajes que existen.
+delete from cyclistic
+ where timediff(ended_at, started_at)<0;
 
-#standarization: applies conversion routines to transform data into its preferred (and consistent) format using both standard and custom business rules.
+--n_tile
 
-#matching: searching and matching records within and across the parsed, corrected and standardized data based on predefined business rules to eliminate duplications.
-
-#consolidating: analyzing and identifying relationships between matched records and consolidating/merging them into one representation.
---la tabla base con la que haré los cálculos
-
-#n_tile
---antes de correr el siguiente query, es necesario correr esta línea porque la fórmula de la mediana lo requiere. 
 set @rowindex := -1;
 
-(select 'n_tile', 'lower_bound', 'upper_bound', 'member_casual', 'rideable_type', 'rides', 'mean', 'mean_all', 'mode', 'median')
-union
-(select n_tile, min(ride_length) as lower_bound, max(ride_length) as upper_bound, member_casual, rideable_type, count(ride_length) as count_rides,
-sec_to_time(avg(time_to_sec(ride_length))) as mean,
-(select sec_to_time(avg(time_to_sec(ride_length))) from 
-(
-select *, timediff(ended_at, started_at) as ride_length
-from cyclistic
-)h) as mean_all,
-(
-select
-    ride_length as mode_length
-from
-    (
-        select
-            ride_length,
-            count,
-            dense_rank() over(
-                order by
-                    count desc
-            ) as rnk
-        from
-            (
-                select
-                    ride_length,
-                    count(*) as count
-                from
-                    (
-select *, timediff(ended_at, started_at) as ride_length
-from cyclistic
-)aaaa
-                group by
-                    ride_length
-            ) x
-    ) y
-where
-    rnk = 1
-) as mode,
-(select
-   sec_to_time(avg(time_to_sec(g.grade))) as median
-from
-   (select @rowindex:=@rowindex + 1 as rowindex,
-           aaa.ride_length as grade
-    from 
-(
-select *, timediff(ended_at, started_at) as ride_length
-from cyclistic
-)aaa
-    order by aaa.ride_length) as g
-where
-g.rowindex in (floor(@rowindex / 2) , ceil(@rowindex / 2))
-) as median
-from(select ntile(12) over (order by ride_length) as n_tile, member_casual, rideable_type, ride_length
-from 
-(
-select member_casual,rideable_type, timediff(ended_at, started_at) as ride_length
-from cyclistic
-)a
-)aa
-group by 1,4,5)
-into outfile 'c:\\programdata\\mysql\\mysql server 8.0\\data\\portfolio_projects\\data_tile.csv'
-fields terminated by ','
-lines terminated by '\n';
+select n_tile
+     , min(ride_length)   as lower_bound
+     , max(ride_length)   as upper_bound
+     , member_casual
+     , rideable_type
+     , count(ride_length) as count_rides
+     , sec_to_time(avg(time_to_sec(ride_length))) as mean
+     , (select sec_to_time(avg(time_to_sec(ride_length))) 
+          from (
+               select *
+                    , timediff(ended_at, started_at) as ride_length
+                 from cyclistic
+                      ) as h
+                ) as mean_all
+     , (select ride_length as mode_length
+          from (
+               select ride_length
+                    , count
+                    , dense_rank() over(order by count desc) as rnk
+                 from (
+                      select ride_length
+                           , count(*) as count
+                        from (
+                             select *
+                                  , timediff(ended_at, started_at) as ride_length
+                               from cyclistic
+                             ) as aaaa
+                    group by ride_length
+                      ) as x
+               ) as y
+         where rnk = 1
+       ) as mode
+     , (select sec_to_time(avg(time_to_sec(g.grade))) as median
+          from (
+               select @rowindex:=@rowindex + 1 as rowindex
+                    , aaa.ride_length as grade
+                 from (
+                      select *
+                           , timediff(ended_at, started_at) as ride_length
+                        from cyclistic
+                      ) as aaa
+             order by aaa.ride_length) as g
+                where g.rowindex in (floor(@rowindex / 2)
+                    , ceil(@rowindex / 2))
+       ) as median
+  from (
+       select ntile(12) over (order by ride_length) as n_tile
+            , member_casual
+            , rideable_type
+            , ride_length
+         from (
+              select member_casual
+                   , rideable_type
+                   , timediff(ended_at, started_at) as ride_length
+                from cyclistic
+              ) as a
+       ) as aa
+ group by 1,4,5;
 
+--Stations
 
-(select 'n_tile', 'lower_bound', 'upper_bound', 'member_casual', 'rideable_type', 'rides', 'ride_length')
-union
-(select n_tile, min(ride_length) as lower_bound, max(ride_length) as upper_bound, member_casual, rideable_type, count(ride_length) as count_rides, ride_length
-from(select ntile(12) over (order by ride_length) as n_tile, member_casual, rideable_type, ride_length
-from 
-(
-select member_casual,rideable_type, timediff(ended_at, started_at) as ride_length
-from cyclistic
-)a
-)aa
-group by 1,4,5,7)
-into outfile 'c:\\programdata\\mysql\\mysql server 8.0\\data\\portfolio_projects\\data_ti.csv'
-fields terminated by ','
-lines terminated by '\n';
-
-#estaciones
-https://platzi.com/blog/calcula-distancias-con-mysql/
-https://gist.github.com/pedrokoblitz/3757634
-https://www.deformasymapas.com/blog/post/2/
-
---para la distancia es necesario convertir las longitudes y latitudes a radianes, por eso la presencia de pi()
---la unión de w y f se dan por medio de una unión lateral. el requisito para usarlas es una coma después de la tabla a unir y la palabra lateral, seguido de la segunda tabla. este tipo de uniones permite usar los resultados de la tabla anterior, y las condiciones se dan en la cláusula where y no en on, como en un join.
-(select 'user', 'rideable_type', 'start_station_name', 'start_lng', 'start_lat', 'top_start_stations', 's_rides', 'end_station_name', 'end_lng', 'end_lat', 'top_end_stations', 'e_rides', 'min_ride_length', 'max_ride_length', 'average_ride', 'distance_km')
-union
-(
-select f.member_casual, f.rideable_type, f.start_station_name, f.start_lng, f.start_lat, f.top_start_stations, f.s_rides, f.end_station_name, f.end_lng, f.end_lat, f.top_end_stations, f.rides, min(g.rlength) as min_ride_length, max(g.rlength) as max_ride_length, sec_to_time(avg(time_to_sec(g.rlength))) as average_ride, f.distance_km
-from
-(
-select w.member_casual, w.rideable_type, w.start_station_name, w.start_lng, w.start_lat, w.top_start_stations, e.end_station_name, e.end_lng, e.end_lat, e.top_end_stations, e.e_rides as rides,  round(((111.18)*(acos((sin(w.start_lat*pi()/180)*sin(e.end_lat*pi()/180))+(cos(w.start_lat*pi()/180)*cos(e.end_lat*pi()/180)*cos((e.end_lng-w.start_lng)*pi()/180)))*180/pi())),2) as distance_km, w.s_rides
-from
-(
-select *
-from
-(
-select member_casual, rideable_type, start_station_name, start_lng, start_lat, s_rides, rank() over(partition by member_casual,rideable_type order by s_rides desc) as top_start_stations
-from 
-(
-select member_casual, rideable_type, start_station_name, start_lng, start_lat, count(*) as s_rides
-from cyclistic
-group by 1,2,3,4,5
-)a
-group by 1,2,3,4,5,6
-)aa
-where  top_start_stations in (1,2,3,4,5)
-) as w,
-lateral
-(
-select *
-from
-(
-select *, rank() over(partition by w.member_casual, w.rideable_type, w.top_start_stations order by a.e_rides desc) as top_end_stations
-from 
-(
-select end_station_name, end_lng, end_lat, count(*) as e_rides
-from cyclistic as c
-where w.member_casual=c.member_casual
-and w.rideable_type=c.rideable_type
-and w.start_station_name = c.start_station_name
-and w.start_lng=c.start_lng
-and  w.start_lat=c.start_lat
-group by 1,2,3
-) as a
-group by 1,2,3,4
-) as aa
-where  top_end_stations in (1,2,3)
-) as e
+  select f.member_casual
+       , f.rideable_type
+       , f.start_station_name
+       , f.start_lng
+       , f.start_lat
+       , f.top_start_stations
+       , f.s_rides
+       , f.end_station_name
+       , f.end_lng
+       , f.end_lat
+       , f.top_end_stations
+       , f.rides
+       , min(g.rlength) as min_ride_length
+       , max(g.rlength) as max_ride_length
+       , sec_to_time(avg(time_to_sec(g.rlength))) as average_ride
+       , f.distance_km
+    from (
+         select w.member_casual
+              , w.rideable_type
+              , w.start_station_name
+              , w.start_lng
+              , w.start_lat
+              , w.top_start_stations
+              , e.end_station_name
+              , e.end_lng
+              , e.end_lat
+              , e.top_end_stations
+              , e.e_rides as rides
+              , round(((111.18)*(acos((sin(w.start_lat*pi()/180)*sin(e.end_lat*pi()/180))+(cos(w.start_lat*pi()/180)*cos(e.end_lat*pi()/180)*cos((e.end_lng-w.start_lng)*pi()/180)))*180/pi())),2) as distance_km
+              , w.s_rides
+           from (
+                select *
+                  from (
+                       select member_casual
+                            , rideable_type
+                            , start_station_name
+                            , start_lng, start_lat
+                            , s_rides
+                            , rank() over(partition by member_casual
+                                                     , rideable_type 
+                                              order by s_rides desc) as top_start_stations
+                         from (
+                              select member_casual
+                                   , rideable_type
+                                   , start_station_name
+                                   , start_lng
+                                   , start_lat
+                                   , count(*) as s_rides
+                                from cyclistic
+                            group by 1,2,3,4,5
+                              ) as a
+                     group by 1,2,3,4,5,6
+                       ) as aa
+                 where top_start_stations in (1,2,3,4,5)
+                ) as w,
+ lateral (
+         select *
+           from (
+                select *
+                     , rank() over(partition by w.member_casual
+                                              , w.rideable_type
+                                              , w.top_start_stations 
+                                       order by a.e_rides desc) as top_end_stations
+                  from (
+                       select end_station_name
+                            , end_lng
+                            , end_lat
+                            , count(*) as e_rides
+                         from cyclistic as c
+                        where w.member_casual=c.member_casual
+                          and w.rideable_type=c.rideable_type
+                          and w.start_station_name = c.start_station_name
+                          and w.start_lng=c.start_lng
+                          and w.start_lat=c.start_lat
+                     group by 1,2,3
+                       ) as a
+              group by 1,2,3,4
+                ) as aa
+   where top_end_stations in (1,2,3)
+         ) as e
 group by 1,2,3,4,5,7,8,9,11
-) as f
-inner join
-(
-select *, timediff(ended_at, started_at) as rlength
-from cyclistic
-) as g
-on f.member_casual=g.member_casual
-and f.rideable_type=g.rideable_type
-and f.start_station_name =g.start_station_name
-and f.start_lng=g.start_lng
-and  f.start_lat=g.start_lat
-and f.end_station_name=g.end_station_name
-and f.end_lng=g.end_lng
-and f.end_lat=g.end_lat
-group by 1,2,3,4,5,7,8,9,10,12)
-into outfile 'c:\\programdata\\mysql\\mysql server 8.0\\data\\portfolio_projects\\stations.csv'
-fields terminated by ','
-lines terminated by '\n';
+         ) as f
+    join (
+         select *
+              , timediff(ended_at, started_at) as rlength
+           from cyclistic
+         ) as g
+      on f.member_casual=g.member_casual
+     and f.rideable_type=g.rideable_type
+     and f.start_station_name =g.start_station_name
+     and f.start_lng=g.start_lng
+     and f.start_lat=g.start_lat
+     and f.end_station_name=g.end_station_name
+     and f.end_lng=g.end_lng
+     and f.end_lat=g.end_lat
+group by 1,2,3,4,5,7,8,9,10,12;
 
 
 --este código se utiliza para cambiar todos los valores de una columna. se extraen seis dígitos del string.
