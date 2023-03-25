@@ -122,7 +122,7 @@ delete from cyclistic
 delete from cyclistic
  where timediff(ended_at, started_at)<0;
 
---n_tile
+--n_tiles
 
 set @rowindex := -1;
 
@@ -284,268 +284,189 @@ group by 1,2,3,4,5,7,8,9,11
      and f.end_lat=g.end_lat
 group by 1,2,3,4,5,7,8,9,10,12;
 
+--Time series
+--Simple trends
+--Month
 
---este código se utiliza para cambiar todos los valores de una columna. se extraen seis dígitos del string.
-update cyclistic set member_casual=substring(member_casual, 1, 6);
+  select member_casual
+       , rideable_type
+       , monthname(started_at) as month
+       , count(*) as rides
+    from cyclistic
+group by 1,2,3;
 
+--Week
 
-#time series
-##simple trende
-###month
---substring no es necesario en el código, se usó por un problema en la columna member_casual
-(select 'user', 'rideable_type', 'month', 'rides')
-union
-(
-select substring(member_casual, 1, 6), rideable_type, monthname(started_at) as month, count(*) as rides
-from cyclistic
-group by 1,2,3
-)
-into outfile 'c:\\programdata\\mysql\\mysql server 8.0\\data\\portfolio_projects\\month.csv'
-fields terminated by ','
-lines terminated by '\n';
+  select member_casual
+       , rideable_type
+       , week(started_at) as week
+       , count(*) as rides
+    from cyclistic
+group by 1,2,3;
 
-###week
+--Day name
 
-(select 'user', 'rideable_type', 'week', 'rides')
-union
-(
-select member_casual, rideable_type, week(started_at) as week, count(*) as rides
-from cyclistic
-group by 1,2,3
-)
-into outfile 'c:\\programdata\\mysql\\mysql server 8.0\\data\\portfolio_projects\\week.csv'
-fields terminated by ','
-lines terminated by '\n';
+  select member_casual
+       , rideable_type
+       , dayname(started_at) as day
+       , count(*) as rides
+    from cyclistic
+group by 1,2,3;
 
-###dayname
-(select 'user', 'rideable_type', 'day', 'rides')
-union
-(
-select member_casual, rideable_type, dayname(started_at) as day, count(*) as rides
-from cyclistic
-group by 1,2,3
-)
-into outfile 'c:\\programdata\\mysql\\mysql server 8.0\\data\\portfolio_projects\\day.csv'
-fields terminated by ','
-lines terminated by '\n';
+--Hour
 
-###hour
-(select 'user', 'rideable_type', 'hour', 'rides')
-union
-(
-select member_casual, rideable_type, hour(started_at) as hour, count(*) as rides
-from cyclistic
-group by 1,2,3
-)
-into outfile 'c:\\programdata\\mysql\\mysql server 8.0\\data\\portfolio_projects\\hour.csv'
-fields terminated by ','
-lines terminated by '\n';
+  select member_casual
+       , rideable_type
+       , hour(started_at) as hour
+       , count(*) as rides
+    from cyclistic
+group by 1,2,3;
 
+--Ratios
 
-###ratios
-
-(select 'month', 'casual', 'member', 'member_minus_casual', 'member_times_of_casual','member_pct_of_casual')
-union
-(
-select month, casual, member, (member-casual) as member_minus_casual, (member/casual) as member_times_of_casual, ((member/casual-1)*100) as member_pct_of_casual
-from
-(
 select month
-,sum(case when user='casual' then rides end) as casual
-,sum(case when user='member' then rides end) as member
-from
-(
-select monthname(started_at) as month, count(*) as rides, substring(member_casual, 1, 6) as user
-from cyclistic
-group by 1,3
-)a
-group by 1
-)aa
-)
-into outfile 'c:\\programdata\\mysql\\mysql server 8.0\\data\\portfolio_projects\\comparison.csv'
-fields terminated by ','
-lines terminated by '\n';
+     , casual
+     , member
+     , (member-casual) as member_minus_casual
+     , (member/casual) as member_times_of_casual
+     , ((member/casual-1)*100) as member_pct_of_casual
+  from (
+       select month
+            , sum(case when user='casual' then rides end) as casual
+            , sum(case when user='member' then rides end) as member
+         from (
+              select monthname(started_at) as month
+                   , count(*) as rides
+                   , member_casual as user
+                from cyclistic
+            group by 1,3
+              ) as a
+     group by 1
+       ) as aa;
 
+--Percentages
+--Monthly percentage by user, Monthly percentage by user compared with total of yearly rides, Percentage indexed to January
 
-#percentages
-##porcentaje mensual por usuarios
-with ma as
-(
-select monthname(started_at) as month, count(*) as rides, member_casual as user
-from cyclistic
-group by 1,3
-)
-select p.month, p.user, p.total_rides, ((p.rides*100)/p.total_rides) as pct_total_rides
-from 
-(
-select m.month, m.user, m.rides, sum(m.rides) over(partition by m.month) as total_rides 
-from ma as m
-join ma as a
-on m.month=a.month
-and m.user!=a.user
-) as p;
-
-
---este es un código más breve que el anterior
-select month, user, ((rides*100)/total_rides) as pct_total_rides
-from
-(
-select month, user, rides, sum(a.rides) over(partition by month) as total_rides
-from
-(
-select monthname(started_at) as month, count(*) as rides, member_casual as user
-from cyclistic
-group by 1,3
-) as a
-) as b;
-
-##porcentaje anual por usuarios por mes
-
-select month, user, ((rides*100)/sum(rides) over(partition by year)) as pct_yearly
-from
-(
-select monthname(started_at) as month, member_casual as user, year(started_at) as year, count(*) as rides
-from cyclistic
-group by 1,2,3
-) as a;
-
-
-
-##indexing to see percent change over time
---en order by clause hay un artificio para poder ordenar por nombre del mes (https://www.w3schools.com/sql/func_mysql_str_to_date.asp)
--se utilizan dos extracciones del mes, una del nombre y otra del número. la del número se usa en window function para poder ordenarlo adecuadamente.
-select month, rides, (rides/first_value(rides) over(order by mon)-1)*100 as pct_from_index
-from
-(
-select month(started_at) as mon, monthname(started_at) as month, count(*) as rides
-from cyclistic
-group by 1,2
-) as a
+  select month
+       , user
+       , rides
+       , ((rides*100)/sum(rides) over(partition by month)) as pct_total_rides
+       , ((rides*100)/sum(rides) over(partition by year)) as pct_yearly
+       , (rides/first_value(rides) over(partition by user order by mon)-1)*100 as pct_from_index
+    from (
+         select monthname(started_at) as month
+              , month(started_at) as mon
+              , member_casual as user
+              , year(started_at) as year
+              , count(*) as rides
+           from cyclistic
+       group by 1,2,3,4
+         ) as a
 order by str_to_date(month,'%m');
 
-select month, user, rides, (rides/first_value(rides) over(partition by user order by mon)-1)*100 as pct_from_index
-from
-(
-select month(started_at) as mon, monthname(started_at) as month, member_casual as user, count(*) as rides
-from cyclistic
-group by 1,2,3
-) as a
+
+--Moving average
+--Week
+
+  select week
+       , avg(rides) over(order by week rows between 52 preceding and current row) as moving_avg
+       , count(rides) over(order by week rows between 52 preceding and current row) as records_count
+    from (
+         select week(started_at) as week
+              , count(*) as rides
+           from cyclistic
+       group by 1
+         ) as a;
+
+--Month
+
+  select month
+       , avg(rides) over(order by mon rows between 11 preceding and current row) as moving_avg
+       , count(rides) over(order by mon rows between 11 preceding and current row) as records_count
+    from (
+         select monthname(started_at) as month
+              , month(started_at) as mon
+              , count(*) as rides
+           from cyclistic
+       group by 1,2
+         ) as a
 order by str_to_date(month,'%m');
 
---código combinado para obtener porcentaje anual y mensual, y porcentaje indexado
-(select 'month', 'user', 'rides', 'pct_total_rides', 'pct_yearly', 'pct_from_index')
-union
-(
-select month, user, rides, ((rides*100)/sum(rides) over(partition by month)) as pct_total_rides, ((rides*100)/sum(rides) over(partition by year)) as pct_yearly, (rides/first_value(rides) over(partition by user order by mon)-1)*100 as pct_from_index
-from
-(
-select monthname(started_at) as month, month(started_at) as mon, member_casual as user, year(started_at) as year, count(*) as rides
-from cyclistic
-group by 1,2,3,4
-) as a
-order by str_to_date(month,'%m')
-)
-into outfile 'c:\\programdata\\mysql\\mysql server 8.0\\data\\portfolio_projects\\percentages.csv'
-fields terminated by ','
-lines terminated by '\n';
+--Cumulative values
+
+  select week
+       , rides
+       , sum(rides) over(partition by mon order by week) as month_rides
+    from (
+         select month(started_at) as mon
+              , week(started_at) as week
+              , count(*) as rides
+           from cyclistic
+       group by 1,2
+         ) as a
+order by 1;
 
 
-##moving average
-###week
-(select 'week', 'moving_avg', 'records_count')
-union
-(
-select week, avg(rides) over(order by week rows between 52 preceding and current row) as moving_avg, count(rides) over(order by week rows between 52 preceding and current row) as records_count
-from (
-select week(started_at) as week, count(*) as rides
-from cyclistic
-group by 1
-) as a
-)
-into outfile 'c:\\programdata\\mysql\\mysql server 8.0\\data\\portfolio_projects\\movavgweek.csv'
-fields terminated by ','
-lines terminated by '\n';
+--Month-over-Month
 
-###month
-(select 'month', 'moving_avg', 'records_count')
-union
-(
-select month, avg(rides) over(order by mon rows between 11 preceding and current row) as moving_avg, count(rides) over(order by mon rows between 11 preceding and current row) as records_count
-from (
-select monthname(started_at) as month, month(started_at) as mon, count(*) as rides
-from cyclistic
-group by 1,2
-) as a
-order by str_to_date(month,'%m')
-)
-into outfile 'c:\\programdata\\mysql\\mysql server 8.0\\data\\portfolio_projects\\movavgmonth.csv'
-fields terminated by ','
-lines terminated by '\n';
+  select user
+       , month
+       , rides
+       , (rides/lag(rides) over(partition by user order by mon)-1)*100 as pct_growth_from_previous
+    from (
+         select monthname(started_at) as month
+              , month(started_at) as mon
+              , member_casual as user
+              , count(*) as rides
+           from cyclistic
+       group by 1,2,3
+         ) as a
+order by str_to_date(month,'%m');
 
-##cumulative values
-(select 'week', 'rides', 'month_rides')
-union
-(
-select week, rides, sum(rides) over(partition by mon order by week) as month_rides
-from (
-select month(started_at) as mon, week(started_at) as week, count(*) as rides
-from cyclistic
-group by 1,2
-) as a
-order by 1
-)
-into outfile 'c:\\programdata\\mysql\\mysql server 8.0\\data\\portfolio_projects\\cumval.csv'
-fields terminated by ','
-lines terminated by '\n';
+--Week-over-Week
+
+  select user
+       , week
+       , rides
+       , (rides/lag(rides) over(partition by user order by week)-1)*100 as pct_growth_from_previous
+    from (
+         select  week(started_at) as week
+               , member_casual as user
+               , count(*) as rides
+            from cyclistic
+        group by 1,2
+         ) as a
+order by 2;
 
 
-##mom
-(select 'user', 'month', 'rides', 'pct_growth_from_previous')
-union
-(
-select user, month, rides, (rides/lag(rides) over(partition by user order by mon)-1)*100 as pct_growth_from_previous
-from (
-select monthname(started_at) as month, month(started_at) as mon, member_casual as user, count(*) as rides
-from cyclistic
+--Variation of the number of rides by day of the week compared by month
+
+  select user
+       , number_day
+       , day
+       , max(case when mon=1 then rides end) as rides_1
+       , max(case when mon=2 then rides end) as rides_2
+       , max(case when mon=3 then rides end) as rides_3
+       , max(case when mon=4 then rides end) as rides_4
+       , max(case when mon=5 then rides end) as rides_5
+       , max(case when mon=6 then rides end) as rides_6
+       , max(case when mon=7 then rides end) as rides_7
+       , max(case when mon=8 then rides end) as rides_8
+       , max(case when mon=9 then rides end) as rides_9
+       , max(case when mon=10 then rides end) as rides_10
+       , max(case when mon=11 then rides end) as rides_11
+       , max(case when mon=12 then rides end) as rides_12
+    from (
+         select dayname(started_at) as day
+              , dayofweek(started_at) as number_day
+              , month(started_at) as mon
+              , member_casual as user
+              , count(*) as rides
+           from cyclistic
+       group by 1,2,3,4
+         ) as a
 group by 1,2,3
-) as a
-order by str_to_date(month,'%m')
-)
-into outfile 'c:\\programdata\\mysql\\mysql server 8.0\\data\\portfolio_projects\\mom.csv'
-fields terminated by ','
-lines terminated by '\n';
+order by 1,2;
 
-
-##wow
-(select 'user', 'week', 'rides', 'pct_growth_from_previous')
-union
-(
-select user, week, rides, (rides/lag(rides) over(partition by user order by week)-1)*100 as pct_growth_from_previous
-from (
-select  week(started_at) as week, member_casual as user, count(*) as rides
-from cyclistic
-group by 1,2
-) as a
-order by 2
-)
-into outfile 'c:\\programdata\\mysql\\mysql server 8.0\\data\\portfolio_projects\\wow.csv'
-fields terminated by ','
-lines terminated by '\n';
-
-(select 'user', 'number_day', 'day','rides_1','rides_2','rides_3','rides_4','rides_5','rides_6','rides_7','rides_8','rides_9','rides_10','rides_11','rides_12')
-union
-(
-select user, number_day, day, max(case when mon=1 then rides end) as rides_1, max(case when mon=2 then rides end) as rides_2,max(case when mon=3 then rides end) as rides_3,max(case when mon=4 then rides end) as rides_4,max(case when mon=5 then rides end) as rides_5,max(case when mon=6 then rides end) as rides_6,max(case when mon=7 then rides end) as rides_7,max(case when mon=8 then rides end) as rides_8,max(case when mon=9 then rides end) as rides_9,max(case when mon=10 then rides end) as rides_10,max(case when mon=11 then rides end) as rides_11,max(case when mon=12 then rides end) as rides_12
-from (
-select  dayname(started_at) as day, dayofweek(started_at) as number_day, month(started_at) as mon, member_casual as user, count(*) as rides
-from cyclistic
-group by 1,2,3,4
-) as a
-group by 1,2,3
-order by 1,2
-)
-into outfile 'c:\\programdata\\mysql\\mysql server 8.0\\data\\portfolio_projects\\daysbymonth.csv'
-fields terminated by ','
-lines terminated by '\n';
 
 
